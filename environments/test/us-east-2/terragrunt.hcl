@@ -7,7 +7,7 @@ terraform {
 }
 
 locals {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
 generate "provider" {
@@ -24,7 +24,7 @@ remote_state {
   backend = "s3"
 
   config = {
-    bucket         = "test-eks-terraform-remote-state"
+    bucket         = "test-eks-terraform-remote-state-us-east-2"
     dynamodb_table = "DynamoDBTerraformStateLockTable"
     encrypt        = true
     region         = local.region

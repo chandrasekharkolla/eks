@@ -13,3 +13,8 @@ variable "tags" {
   type = any
   default     = ""
 }
+
+variable "region" {
+  type = string
+  default = ""
+}
