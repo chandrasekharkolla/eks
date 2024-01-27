@@ -1,20 +1,20 @@
 variable "vpc_name" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "vpc_cidr" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "tags" {
   description = "Tags for AWS resources"
-  type = any
+  type        = any
   default     = ""
 }
 
 variable "region" {
-  type = string
+  type    = string
   default = ""
 }

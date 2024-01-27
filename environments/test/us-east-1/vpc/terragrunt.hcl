@@ -38,13 +38,11 @@ remote_state {
 }
 
 inputs = {
-  # VPC Configs
+  # Common Configs
+  region = local.region
   tags = {
     "Name" = "EKS-VPC"
   }
-  
-  # Common Configs
-  region = local.region
 
   # VPC Configs
   vpc_cidr = "10.0.0.0/16"
