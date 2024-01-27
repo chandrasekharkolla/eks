@@ -4,4 +4,4 @@
 *.tfstate.*
 .vscode/*
 provider.tf
-.DS_Store
+**/.DS_Store
