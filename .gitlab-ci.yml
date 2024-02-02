@@ -8,7 +8,7 @@ stages:
   - build
 default:
   tags:
-    - docker-devops-tools
+    - gitlab-org
 
 variables:
   # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
