@@ -1,52 +1,289 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+image: docker:20.10.22
+
+services:
+  - docker:20.10.22-dind
+
+stages:
+  - release
+  - build
 default:
   tags:
-    - gitlab-org
+    - docker-devops-tools
 
-stages:          # List of stages for jobs, and their order of execution
-  - build
-  - test
-  - deploy
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_TLS_CERTDIR2: "/certs"
+  DOCKER_TLS_VERIFY2: 1
+  DOCKER_CERT_PATH2: "$DOCKER_TLS_CERTDIR/client"
+  DEVOPS_TOOLS_VERS: 0.0.3
+  DEVOPS_TOOLS_NAME: devops-tools
+  DEVOPS_TOOLS_RLS_IMAGE: $CI_REGISTRY_IMAGE:$DEVOPS_TOOLS_VERS
+  DEVOPS_TOOLS_TEST_IMAGE: $CI_REGISTRY_IMAGE:test0.0.3
 
-build-job:       # This job runs in the build stage, which runs first.
+before_script:
+  - echo CI_REGISTRY $CI_REGISTRY
+  - echo OPENJDK11_DIND_TEST_IMAGE $OPENJDK11_DIND_TEST_IMAGE
+  - echo CI_REGISTRY_USER $CI_REGISTRY_USER
+  - echo CI_DEPLOY_PASSWORD $CI_DEPLOY_PASSWORD
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build_devops_tools_image:
   stage: build
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - chmod +x version_check.sh
+    - docker build --pull -t $DEVOPS_TOOLS_TEST_IMAGE .
+    - docker images
+    - docker run $DEVOPS_TOOLS_TEST_IMAGE ./version_check.sh
+    - docker push $DEVOPS_TOOLS_TEST_IMAGE
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+release_devops_tools_image:
+  stage: release
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    # - sleep 60
-    - echo "Code coverage is 90%"
+    - docker pull $DEVOPS_TOOLS_TEST_IMAGE
+    - docker tag $DEVOPS_TOOLS_RLS_IMAGE
+    - docker push $DEVOPS_TOOLS_RLS_IMAGE
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    # - sleep 10
-    - echo "No lint issues found."
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+
+
+
+
+
+
+
+
+
+
+# default:
+#   image: registry.gitlab.com/amfament/homesite/devops-tooling-enablement/docker-devops-tools:test0.0.3
+#   tags:
+#     - hs-svc-platform-baseline
+#   before_script:
+#     - eval $(ssh-agent -s)
+#     - ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
+#     - mkdir -p ~/.ssh
+#     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+#     - aws sts get-caller-identity
+
+# stages:
+# #  - unlock
+#  - lint
+#  - plan
+#  - deploy
+
+# .rules_stub:
+#   rules: 
+
+# .retry_stub:
+#   retry:
+#     max: 2
+#     when:
+#       - runner_system_failure
+#       - stuck_or_timeout_failure
+
+# .rules_plan_stub:
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/$TG_SOURCE/terragrunt.hcl
+
+# .rules_apply_stub:
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/$TG_SOURCE/terragrunt.hcl
+
+# # Release TF Lock:
+# #   stage: unlock
+# #   variables:
+# #     lock_id: ""
+# #     locked_path: ""
+# #   script:
+# #     - echo "User provided to unlock $lock_id in $locked_path"
+# #     - cd $locked_path
+# #     - pwd
+# #     - terragrunt force-unlock -force $lock_id
+# #   rules:
+# #     - if: $lock_id == null || $locked_path == null
+# #       when: never
+# #     - when: manual
+# #       allow_failure: false
+
+# Lint:
+#   stage: lint
+#   script:
+#     - terraform fmt -check -recursive
+#     - terragrunt hclfmt --terragrunt-check --recursive
+#     - terragrunt validate
+#     - terragrunt validate-inputs --terragrunt-strict-validate
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# PLAN eks cluster:
+#   stage: plan
+#   script:
+#     - git diff --name-only
+#     - cd $CI_PROJECT_DIR/environments/svc-prod/kubernetes-cluster
+#     - terragrunt plan
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/kubernetes-cluster/terragrunt.hcl
+#         - src/modules/eks-cluster/*.tf
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# DEPLOY eks cluster:
+#   needs:
+#     - PLAN eks cluster
+#   stage: deploy
+#   environment:
+#     name: production
+#     action: prepare
+#   when: manual
+#   script:
+#     - git diff --name-only
+#     - cd $CI_PROJECT_DIR/environments/svc-prod/kubernetes-cluster
+#     - terragrunt apply -auto-approve
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/kubernetes-cluster/terragrunt.hcl
+#         - src/modules/eks-cluster/*.tf
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# PLAN eks add-ons:
+#   stage: plan
+#   script:
+#     - git diff --name-only
+#     - CHANGED_DIRS=$(git diff --name-only HEAD HEAD~ --relative=environments/svc-prod/cluster-addons/ | cut -d'/' -f1 | sort | uniq)
+#     - for DIR in $CHANGED_DIRS; do
+#         cd $CI_PROJECT_DIR/environments/svc-prod/cluster-addons/$DIR;
+#         terragrunt plan;
+#       done
+#     - if [ -z "$CHANGED_DIRS" ]; then
+#         echo "No changes detected, skipping Terragrunt plan...";
+#       else
+#         echo "The changes are going to be applied to the following Gitlab Private Runners:";
+#         for DIR in ${CHANGED_DIRS}; do
+#           echo $DIR;
+#         done;
+#       fi
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/cluster-addons/**/terragrunt.hcl
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# DEPLOY eks add-ons:
+#   needs:
+#     - PLAN eks add-ons
+#   stage: deploy
+#   environment:
+#     name: production
+#     action: prepare
+#   when: manual
+#   script:
+#     - git diff --name-only
+#     - CHANGED_DIRS=$(git diff --name-only HEAD HEAD~ --relative=environments/svc-prod/cluster-addons/ | cut -d'/' -f1 | sort | uniq)
+#     - for DIR in $CHANGED_DIRS; do
+#         cd $CI_PROJECT_DIR/environments/svc-prod/cluster-addons/$DIR;
+#         terragrunt apply -auto-approve;
+#       done
+#     - if [ -z "$CHANGED_DIRS" ]; then
+#         echo "No changes detected, skipping Terragrunt plan...";
+#       else
+#         echo "The changes are going to be applied to the following Gitlab Private Runners:";
+#         for DIR in ${CHANGED_DIRS}; do
+#           echo $DIR;
+#         done;
+#       fi
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - environments/svc-prod/cluster-addons/**/terragrunt.hcl
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# PLAN Gitlab Private Runner:
+#   stage: plan
+#   script:
+#     - git diff --name-only
+#     - CHANGED_DIRS=$(git diff --name-only HEAD HEAD~ --relative=environments/svc-prod/gitlab-private-runners/ | cut -d'/' -f1 | sort | uniq)
+#     - for DIR in $CHANGED_DIRS; do
+#         cd $CI_PROJECT_DIR/environments/svc-prod/gitlab-private-runners/$DIR;
+#         terragrunt plan;
+#       done
+#     - if [ -z "$CHANGED_DIRS" ]; then
+#         echo "No changes detected, skipping Terragrunt plan...";
+#       else
+#         echo "The changes are going to be applied to the following Gitlab Private Runners:";
+#         for DIR in ${CHANGED_DIRS}; do
+#           echo $DIR;
+#         done;
+#       fi
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - "!environments/svc-prod/gitlab-private-runners/runners_backend.hcl"
+#         - environments/svc-prod/gitlab-private-runners/**/terragrunt.hcl
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
+# DEPLOY Gitlab Private Runner:
+#   needs:
+#     - PLAN Gitlab Private Runner
+#   stage: deploy
+#   environment:
+#     name: production
+#     action: prepare
+#   when: manual
+#   script:
+#     - git diff --name-only
+#     - CHANGED_DIRS=$(git diff --name-only HEAD HEAD~ --relative=environments/svc-prod/gitlab-private-runners/ | cut -d'/' -f1 | sort | uniq)
+#     - for DIR in $CHANGED_DIRS; do
+#         cd $CI_PROJECT_DIR/environments/svc-prod/gitlab-private-runners/$DIR;
+#         terragrunt apply -auto-approve;
+#       done
+#     - if [ -z "$CHANGED_DIRS" ]; then
+#         echo "No changes detected, skipping Terragrunt plan...";
+#       else
+#         echo "The changes applied to the following Gitlab Private Runners:";
+#         for DIR in ${CHANGED_DIRS}; do
+#           echo $DIR;
+#         done;
+#       fi
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"
+#       when: never
+#     - if: $CI_COMMIT_BRANCH == "main"
+#       changes:
+#         - "!environments/svc-prod/gitlab-private-runners/runners_backend.hcl"
+#         - environments/svc-prod/gitlab-private-runners/**/terragrunt.hcl
+#   retry: !reference [.retry_stub, retry]
+#   allow_failure: false
+
