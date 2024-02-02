@@ -1,1 +1,1 @@
-# TEST eks project gets push to both github and gutlab at the sametime
+# eks project gets push to both github and gutlab at the sametime
