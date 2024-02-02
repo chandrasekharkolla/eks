@@ -12,12 +12,12 @@ default:
 
 variables:
   # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_TLS_CERTDIR2: "/certs"
-  DOCKER_TLS_VERIFY2: 1
-  DOCKER_CERT_PATH2: "$DOCKER_TLS_CERTDIR/client"
-  DEVOPS_TOOLS_VERS: 0.0.3
+  # DOCKER_HOST: tcp://docker:2375
+  # DOCKER_TLS_CERTDIR: ""
+  # DOCKER_TLS_CERTDIR2: "/certs"
+  # DOCKER_TLS_VERIFY2: 1
+  # DOCKER_CERT_PATH2: "$DOCKER_TLS_CERTDIR/client"
+  DEVOPS_TOOLS_VERS: 0.0.0
   DEVOPS_TOOLS_NAME: devops-tools
   DEVOPS_TOOLS_RLS_IMAGE: $CI_REGISTRY_IMAGE:$DEVOPS_TOOLS_VERS
   DEVOPS_TOOLS_TEST_IMAGE: $CI_REGISTRY_IMAGE:test0.0.3
