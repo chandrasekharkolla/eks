@@ -1,4 +1,6 @@
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 # ################################################################################
 # # KMS
@@ -157,47 +159,47 @@ module "eks" {
         instance_metadata_tags      = "disabled"
       }
     }
-    (var.windows_node_group_name) = {
-      name                       = var.windows_node_group_name
-      use_name_prefix            = false
-      ami_type                   = var.windows_node_group_ami_type
-      ami_id                     = data.aws_ami.eks_opt_windows_ami.image_id
-      use_custom_launch_template = false
-      min_size                   = var.windows_node_group_min_size
-      max_size                   = var.windows_node_group_max_size
-      desired_size               = var.windows_node_group_min_size
-      instance_types             = var.windows_node_group_instance_type
-      capacity_type              = var.windows_node_group_capacity_type
-      disk_size                  = var.windows_nodes_disk_size
+    # (var.windows_node_group_name) = {
+    #   name                       = var.windows_node_group_name
+    #   use_name_prefix            = false
+    #   ami_type                   = var.windows_node_group_ami_type
+    #   ami_id                     = data.aws_ami.eks_opt_windows_ami.image_id
+    #   use_custom_launch_template = false
+    #   min_size                   = var.windows_node_group_min_size
+    #   max_size                   = var.windows_node_group_max_size
+    #   desired_size               = var.windows_node_group_min_size
+    #   instance_types             = var.windows_node_group_instance_type
+    #   capacity_type              = var.windows_node_group_capacity_type
+    #   disk_size                  = var.windows_nodes_disk_size
 
-      taints = [
-        {
-          key    = "os"
-          value  = "windows"
-          effect = "NO_SCHEDULE"
-        }
-      ]
+    #   taints = [
+    #     {
+    #       key    = "os"
+    #       value  = "windows"
+    #       effect = "NO_SCHEDULE"
+    #     }
+    #   ]
 
-      labels = {
-        Name = var.windows_node_group_name
-      }
+    #   labels = {
+    #     Name = var.windows_node_group_name
+    #   }
 
-      update_config = {
-        max_unavailable_percentage = 33 # or set `max_unavailable`
-      }
+    #   update_config = {
+    #     max_unavailable_percentage = 33 # or set `max_unavailable`
+    #   }
 
-      tags = {
-        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
-        "k8s.io/cluster-autoscaler/enabled"             = "true"
-        "Name"                                          = var.windows_node_group_name
-      }
-      metadata_options = {
-        http_endpoint               = "enabled"
-        http_tokens                 = "required"
-        http_put_response_hop_limit = 2
-        instance_metadata_tags      = "disabled"
-      }
-    }
+    #   tags = {
+    #     "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+    #     "k8s.io/cluster-autoscaler/enabled"             = "true"
+    #     "Name"                                          = var.windows_node_group_name
+    #   }
+    #   metadata_options = {
+    #     http_endpoint               = "enabled"
+    #     http_tokens                 = "required"
+    #     http_put_response_hop_limit = 2
+    #     instance_metadata_tags      = "disabled"
+    #   }
+    # }
   }
 
   manage_aws_auth_configmap = true

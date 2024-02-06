@@ -16,6 +16,13 @@ generate "provider" {
   contents  = <<EOF
     provider "aws" {
       region = "${local.region}"
+      default_tags {
+        tags = {
+          Environment = "Test"
+          Owner       = "TFProviders"
+          Project     = "Test"
+        }
+      }
     }
 EOF
 }
@@ -40,10 +47,8 @@ remote_state {
 inputs = {
   # Common Configs
   region = local.region
-  tags = {
-    "Name" = "EKS-VPC"
-  }
 
   # VPC Configs
   vpc_cidr = "10.0.0.0/16"
+  vpc_name = "My-EKS-VPC"
 }

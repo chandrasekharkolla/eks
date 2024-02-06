@@ -2,9 +2,9 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-terraform {
-  source = "${get_parent_terragrunt_dir()}//src/modules/vpc"
-}
+# terraform {
+#   source = "${get_parent_terragrunt_dir()}//src/modules/vpc"
+# }
 
 locals {
   region = "us-east-2"
