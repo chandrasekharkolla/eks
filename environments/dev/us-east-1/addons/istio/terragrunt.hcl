@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}//src/modules/addons/argocd"
+  source = "${get_parent_terragrunt_dir()}//src/modules/addons/istio"
 }
 
 dependency "eks" {
@@ -23,7 +23,7 @@ dependency "vpc" {
   }
 }
 
-dependency "vpc" {
+dependency "aws-lb-controller" {
   config_path = "../../aws-lb-controller"
 
   skip_outputs = true
@@ -59,7 +59,7 @@ remote_state {
     dynamodb_table = "DynamoDBTerraformStateLockTable"
     encrypt        = true
     region         = local.region
-    key            = "kubernetes/addons/argocd.tfstate"
+    key            = "kubernetes/addons/istio.tfstate"
   }
 
   generate = {

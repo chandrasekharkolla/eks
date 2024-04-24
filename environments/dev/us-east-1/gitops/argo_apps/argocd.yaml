@@ -1,22 +1,18 @@
-# nginx.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bookinfo
+  name: argocd
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: 'https://gitlab.com/chandrasekharkolla/eks.git'
-    path: 'environments/test/us-east-1/Argo/app-of-apps/bookinfo'
-    directory:
-      recurse: true
+    path: environments/dev/us-east-1/gitops/argo_apps
     targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: default
+    namespace: argocd
   syncPolicy:
     automated:
       selfHeal: true
       prune: true
-      allowEmpty: true

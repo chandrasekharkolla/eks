@@ -1,18 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: bookinfo
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: 'https://gitlab.com/chandrasekharkolla/eks.git'
-    path: environments/test/us-east-1/argocd/argo_apps
+    path: 'environments/dev/us-east-1/gitops/manifests/default/bookinfo/boookinfo.yaml'
+    directory:
+      recurse: true
     targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: argocd
+    namespace: default
   syncPolicy:
     automated:
       selfHeal: true
       prune: true
+      allowEmpty: true

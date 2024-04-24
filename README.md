@@ -50,6 +50,10 @@ aws eks update-kubeconfig --region us-east-1 --name my-cluster
 
 ## _Istio_
 
+- ##### Traffic management
+- ##### Security
+- 
+
 1. Label the namespace
 2. Install istio
     ```

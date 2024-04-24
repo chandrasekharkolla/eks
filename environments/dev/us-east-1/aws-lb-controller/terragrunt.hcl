@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}//src/modules/aws-lb-controller"
+  source = "${get_parent_terragrunt_dir()}//src/modules/addons/aws-lb-controller"
 }
 
 dependency "eks" {
