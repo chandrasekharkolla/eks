@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://gitlab.com/amfament/homesite/pocrunner2/kubernetes.git'
+    repoURL: 'https://gitlab.com/chandrasekharkolla/eks.git'
     path: 'environments/dev/us-east-1/gitops/manifests/istio-system'
     directory:
       recurse: true
