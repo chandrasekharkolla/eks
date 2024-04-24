@@ -1,0 +1,22 @@
+# nginx.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://gitlab.com/amfament/homesite/pocrunner2/kubernetes.git'
+    path: 'environments/test/us-east-1/Argo/app-of-apps/bookinfo'
+    directory:
+      recurse: true
+    targetRevision: dev
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+      allowEmpty: true
