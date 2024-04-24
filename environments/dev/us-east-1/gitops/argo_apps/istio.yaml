@@ -10,7 +10,7 @@ spec:
     path: 'environments/dev/us-east-1/gitops/manifests/istio-system'
     directory:
       recurse: true
-    targetRevision: dev
+    targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
