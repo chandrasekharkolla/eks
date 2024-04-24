@@ -16,7 +16,16 @@ aws eks update-kubeconfig --region us-east-1 --name my-cluster
 
 ## _Deploy Bookinfo application_
 1. Deploy app of type loadbalancer using manifests
+   ```
+   cd app_manifests
+   k apply -f bookinfo.yaml
+   k get po
+   k get svc
+   ```
 2. Access it from the web
+   ```
+   http://product-page-209c816045ab648b.elb.us-east-1.amazonaws.com:9080/productpage
+   ```
 3. Cleanup
     ```
     kubectl delete -f .
@@ -42,7 +51,7 @@ aws eks update-kubeconfig --region us-east-1 --name my-cluster
 
     argocd repo add "https://gitlab.com/chandrasekharkolla/eks.git" --username chandrasekharkolla --password "glpat-iyjZs7gPhtpEF7xbgWao"
 
-    k apply -f argocd.yaml
+    k apply -f gitops/argo_apps/argocd.yaml
     ```
 4. See how resources got created and access the app again from the browser
 5. Change the svc type from LoadBalancer to ClusterIP
