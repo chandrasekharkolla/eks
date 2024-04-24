@@ -7,11 +7,11 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://gitlab.com/amfament/homesite/pocrunner2/kubernetes.git'
+    repoURL: 'https://gitlab.com/chandrasekharkolla/eks.git'
     path: 'environments/test/us-east-1/Argo/app-of-apps/bookinfo'
     directory:
       recurse: true
-    targetRevision: dev
+    targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

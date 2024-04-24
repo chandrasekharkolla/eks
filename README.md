@@ -41,6 +41,8 @@ aws eks update-kubeconfig --region us-east-1 --name my-cluster
     argocd account update-password --current-password 
 
     argocd repo add "https://gitlab.com/chandrasekharkolla/eks.git" --username chandrasekharkolla --password "glpat-iyjZs7gPhtpEF7xbgWao"
+
+    k apply -f argocd.yaml
     ```
 4. See how resources got created and access the app again from the browser
 5. Change the svc type from LoadBalancer to ClusterIP

@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://gitlab.com/chandrasekharkolla/eks.git'
     path: environments/test/us-east-1/argocd/argo_apps
-    targetRevision: dev
+    targetRevision: main
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: argocd
