@@ -1,29 +1,29 @@
 variable "eks_cluster_name" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "vpc_id" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "region" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "cluster_endpoint" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "cluster_ca_cert" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "oidc_provider_arn" {
-  type = string
+  type    = string
   default = ""
 }

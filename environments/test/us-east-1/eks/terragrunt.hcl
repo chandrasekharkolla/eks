@@ -118,6 +118,11 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
+  mock_outputs = {
+    vpc_id          = ""
+    private_subnets = [""]
+    intra_subnets   = [""]
+  }
 }
 
 generate "provider" {

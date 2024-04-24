@@ -3,11 +3,11 @@ include "root" {
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}//src/modules/aws-lb-controller"
+  source = "${get_parent_terragrunt_dir()}//src/modules/addons/argocd"
 }
 
 dependency "eks" {
-  config_path = "../eks"
+  config_path = "../../eks"
   mock_outputs = {
     cluster_endpoint                   = ""
     cluster_certificate_authority_data = ""
@@ -17,10 +17,16 @@ dependency "eks" {
 }
 
 dependency "vpc" {
-  config_path = "../vpc"
+  config_path = "../../vpc"
   mock_outputs = {
     vpc_id = ""
   }
+}
+
+dependency "vpc" {
+  config_path = "../../aws-lb-controller"
+
+  skip_outputs = true
 }
 
 generate "provider" {
@@ -43,6 +49,8 @@ generate "provider" {
 EOF
 }
 
+# iam_role = "arn:aws:iam::${local.account_vars.locals.account_number}:role/devops-iac"
+
 remote_state {
   backend = "s3"
 
@@ -51,7 +59,7 @@ remote_state {
     dynamodb_table = "DynamoDBTerraformStateLockTable"
     encrypt        = true
     region         = local.region
-    key            = "aws-lb-controller.tfstate"
+    key            = "kubernetes/addons/argocd.tfstate"
   }
 
   generate = {
@@ -65,10 +73,9 @@ locals {
 }
 
 inputs = {
-  eks_cluster_name  = "my-cluster"
-  vpc_id            = dependency.vpc.outputs.vpc_id
-  cluster_endpoint  = dependency.eks.outputs.cluster_endpoint
-  cluster_ca_cert   = dependency.eks.outputs.cluster_certificate_authority_data
-  region            = local.region
-  oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
+  eks_cluster_name = dependency.eks.outputs.cluster_name
+  cluster_endpoint = dependency.eks.outputs.cluster_endpoint
+  cluster_ca_cert  = dependency.eks.outputs.cluster_certificate_authority_data
+  region           = local.region
+  #   oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
 }
